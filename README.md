@@ -1,122 +1,74 @@
-# Bulk Progress Sync
+﻿# Bulk Progress Sync
 
-Push or pull saved reading positions for a library folder and its subfolders. The plugin uses your existing KOReader **Progress sync** account and document matching setting.
+Sync saved reading positions for a books folder and its subfolders. Uses your existing **Progress sync** account and document matching setting. Custom sync servers should work.
 
-This project was inspired by [MarMed/kobatchsync](https://github.com/MarMed/kobatchsync).
+Inspired by [MarMed/kobatchsync](https://github.com/MarMed/kobatchsync).
 
-## 1. Install on your device
+## 1. Install
 
-These steps assume KOReader is already installed and working. For initial KOReader setup, follow the official [Kobo guide](https://github.com/koreader/koreader/wiki/Installation-on-Kobo-devices), [Kindle guide](https://github.com/koreader/koreader/wiki/Installation-on-Kindle-devices), or [Android guide](https://github.com/koreader/koreader/wiki/Installation-on-Android-devices).
+KOReader must already be installed and working. **Progress sync** settings should already be configured.
 
-1. Exit KOReader. On PocketBook, Kobo, or Kindle, connect the device to your computer by USB. On Android, use a file manager or USB file transfer.
-2. Open the plugin folder for your device from the table below. Create `plugins` if needed on Android.
-3. Move older copies of this plugin outside KOReader's plugin directories. Copy the extracted `bulkprogresssync.koplugin` folder into `plugins`; do not merge it into an older copy. Keep the built-in `kosync.koplugin` folder.
-4. Safely eject and disconnect USB if connected, then launch KOReader again.
+1. Exit KOReader and connect your device to your computer, or use a file manager on Android.
+2. Copy the extracted `bulkprogresssync.koplugin` folder into your device's plugin folder:
 
-| Device         | Plugin folder                                                                                                                          | Device-specific step                                                                                                                                           |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **PocketBook** | `applications/koreader/plugins/` on USB storage                                                                                        | Open the `applications` folder on the connected device.                                                                                                        |
-| **Kobo**       | `.adds/koreader/plugins/` on USB storage                                                                                               | Enable hidden files on your computer to see `.adds`. Older installations may use `.kobo/koreader/plugins/`; use the folder containing your installed KOReader. |
-| **Kindle**     | `koreader/plugins/` at the root of USB storage                                                                                         | Use your existing KOReader launcher after disconnecting. KOReader must already be installed on a compatible, jailbroken Kindle.                                |
-| **Android**    | `Internal storage/koreader/plugins/` (usually `/storage/emulated/0/koreader/plugins/`, also accessible as `/sdcard/koreader/plugins/`) | Start KOReader once before installing to create its data folder. Exit it before copying the plugin, and allow storage access when Android requests it.         |
+   | Device     | Plugin folder                                                                               |
+   | ---------- | ------------------------------------------------------------------------------------------- |
+   | PocketBook | `applications/koreader/plugins/`                                                            |
+   | Kobo       | `.adds/koreader/plugins/` (enable hidden files to see `.adds`) or `.kobo/koreader/plugins/` |
+   | Kindle     | `koreader/plugins/`                                                                         |
+   | Android    | `Internal storage/koreader/plugins/` (create `plugins` if needed)                           |
 
-Check that `main.lua` is directly inside `plugins/bulkprogresssync.koplugin/`, without an extra nested folder.
+3. If updating, move the old copy out of the plugin folder first.
+4. Safely disconnect your device and restart KOReader. Open **Bulk Progress Sync** in the file browser menu.
 
-**Ready:** look for **Bulk Progress Sync** in KOReader's file browser menu.
+**On Android**, start KOReader once before installing and allow storage access when asked. **Custom installations** may use another location; see KOReader's [plugin guide](https://koreader.rocks/user_guide/#L1-plugins).
 
-<p><img src="screenshots/bulk-progress-sync-menu-item.png" alt="Bulk Progress Sync entry in the KOReader file browser menu" width="360"></p>
+<p><img src="screenshots/bulk-progress-sync-menu-item.png" alt="Bulk Progress Sync in the file browser menu" width="360"></p>
 
-The separate `kobatchsync.koplugin` can stay installed. Its menu is **Batch progress sync**.
+## 2. Choose your books folder
 
-Paths follow KOReader's [plugin installation guidance](https://koreader.rocks/user_guide/#L1-plugins), [Kobo installation layout](https://github.com/koreader/koreader/wiki/Installation-on-Kobo-devices), and [Kindle installation layout](https://github.com/koreader/koreader/wiki/Installation-on-Kindle-devices). Android's data-folder and plugin lookup behavior are defined in KOReader's [data storage code](https://github.com/koreader/koreader/blob/master/datastorage.lua) and [plugin loader](https://github.com/koreader/koreader/blob/master/frontend/pluginloader.lua). Custom installations may use a different location.
+1. Close any open book.
+2. Open **Bulk Progress Sync → Choose library folder**.
+3. Long-press your books folder to select it. To select the current folder, long-press **Long-press here to choose current folder**.
+4. Select **Check library folder** to check the path and book count. This does not sync anything.
 
-## 2. Choose and check your library
+On PocketBook, **Choose SD card folder** is a shortcut to `/mnt/ext2`. On other devices, use **Choose library folder**. Choose a folder KOReader can access, such as `documents` on Kindle or `Books` on Android.
 
-1. Close any open book to save its position and return to the file browser.
-2. Open **Bulk Progress Sync** and choose the folder option for your device from the table below.
-3. Long-press your books folder to select it. To select the folder currently displayed, long-press **Long-press here to choose current folder**.
-4. Choose **Check library folder**.
+<p><img src="screenshots/plugin-settings.png" alt="Bulk Progress Sync options" width="360"></p>
 
-| Device         | Choose your library                                                                                                                                                                                              |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **PocketBook** | Use **Choose SD card folder** for `/mnt/ext2`, or **Choose library folder** for internal storage.                                                                                                                |
-| **Kobo**       | Use **Choose library folder** and select the folder containing your KOReader books on onboard storage.                                                                                                           |
-| **Kindle**     | Use **Choose library folder** and select `documents` or your own book folder on USB storage.                                                                                                                     |
-| **Android**    | Use **Choose library folder** and select an accessible folder, such as `Books` in internal storage. For an SD card, grant the storage access Android requests; if KOReader cannot open it, use internal storage. |
+## 3. Sync
 
-**Choose SD card folder** is a PocketBook-only shortcut. Kobo, Kindle, and Android use **Choose library folder**.
-
-**Checked:** the result shows the selected path, book count, and scan results. This check does not contact the server or save progress.
-
-Scans skip hidden entries, links outside the selected library, KOReader `.sdr` folders, and unsupported files.
-
-<p><img src="screenshots/settings.png" alt="Bulk Progress Sync menu with push, pull, library folder, and diagnostic options" width="360"></p>
-
-This PocketBook screenshot shows the SD card shortcut. Its older **Last batch result** label is now **Last bulk result**.
-
-## 3. Sync your positions
-
-**Before confirming:** either direction can replace a newer position at the destination. Choose the device or server whose positions you want to keep.
+**Syncing can overwrite newer positions. Choose the source whose positions you want to keep.** Book files must already be on both devices.
 
 1. Connect to Wi-Fi.
-2. In the file browser, open **Bulk Progress Sync** and choose a direction from the table below.
-3. Check the library folder and server in the confirmation dialog, then confirm.
-4. Read the results. They close after **12 seconds**; open **Last bulk result** to view them again before restarting KOReader.
+2. In the file browser, open **Bulk Progress Sync** and choose:
+   - **Push all saved positions** to send this device's positions to the server.
+   - **Pull all saved positions** to apply server positions to this device, including unopened books. Annotations are kept.
+3. Check the folder and server in the confirmation dialog, then confirm.
 
-| Choose                       | What happens                                                                                                                                            |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Push all saved positions** | Sends valid saved local positions, including updates to existing server progress. Books missing a saved position or percentage are reported separately. |
-| **Pull all saved positions** | Applies matching server positions to local books, including unopened books. Existing annotations are kept.                                              |
+<p><img src="screenshots/push-confirmation.png" alt="Push confirmation with folder and server details" width="360"></p>
 
-Progress Sync transfers reading positions. Book files must already be present on both devices. For one open book, use KOReader's built-in **Progress sync** menu.
+<p><img src="screenshots/pushing-library-progress.png" alt="Sync progress and Cancel button" width="360"></p>
 
-### Confirm, watch, and review
+<p><img src="screenshots/syncing-finished.png" alt="Sync results" width="360"></p>
 
-**Confirm:** check the destination server and selected folder before pushing.
+Press **Cancel** to stop. Completed changes stay applied, and an upload already sent may still take effect.
 
-<p><img src="screenshots/push-confirmation.png" alt="Push confirmation showing the library folder, server, and metadata setting" width="360"></p>
+For a single open book, use KOReader's built-in **Progress sync** menu.
 
-**Watch:** the progress dialog shows the current book and a Cancel button.
+### Skipped books
 
-<p><img src="screenshots/pushing-library-progress.png" alt="Library push in progress at book 19 of 48" width="360"></p>
+- Scans skip hidden entries, links outside the library, `.sdr` folders, and unsupported files.
+- Books without a saved position or percentage.
+- Filename matching skips books with the same filename (such as two copies of `Dune.epub` in different folders).
+- Content matching skips duplicate copies with conflicting local positions on push.
 
-**Review:** the result lists accepted positions, skipped books, and requests with book details.
+## Troubleshooting: single-book push fails
 
-<p><img src="screenshots/syncing-finished.png" alt="Completed bulk sync with 48 books found and 22 positions accepted by the server" width="360"></p>
+1. Open **Bulk Progress Sync → Check Progress Sync client**.
+2. The client path should end in `kosync.koplugin/KOSyncClient.lua`.
+3. If it points to another plugin folder, move that older copy outside KOReader's plugin folders and restart KOReader.
 
-### Stop a sync
+## AI use
 
-Press **Cancel** in the progress dialog. It becomes available shortly after the dialog opens to prevent accidental cancellation.
-
-Completed changes stay applied. An upload already sent may still take effect. If KOReader cannot start a background worker, the screen may pause until the current request finishes.
-
-### Understand matching results
-
-- **Filename matching:** two files with the same name in the selected library are reported as ambiguous.
-- **Content matching:** duplicate local copies with conflicting saved positions are skipped on push.
-
-## Optional: send book details to CrossPoint Sync
-
-1. Open a book and set **Progress sync → Custom sync server** to `https://sync.crosspointreader.com`.
-2. Turn on **Send document metadata**.
-3. Close the book and run **Bulk Progress Sync → Push all saved positions** from the file browser.
-
-Bulk pushes respect the metadata switch. When enabled, they send the filename and any saved title and author. Results show the server that accepted the progress and the number of requests that included book details. CrossPoint's dashboard controls how those records appear.
-
-For any custom server, use a trusted HTTPS URL that answers directly. The plugin does not follow redirects with account credentials.
-
-## Fix a failed single-book push
-
-1. Return to the file browser and choose **Bulk Progress Sync → Check Progress Sync client**.
-2. Check that the client path comes from `kosync.koplugin/KOSyncClient.lua`.
-3. If another folder appears, move that older copy outside KOReader's plugin search folders and restart KOReader.
-
-The client check reads the module path without syncing anything.
-
-## Testing status
-
-The bulk workflow was tested under LuaJIT with simulated KOReader storage, widgets, and server responses. Live sync and e-ink repaint still need testing on a device.
-
-## AI-use disclaimer
-
-AI tools have assisted with changes to this plugin and its documentation. AI-assisted work can contain mistakes; it does not establish device compatibility or replace testing on hardware. Check the testing status above and back up your KOReader settings before using bulk sync.
+AI tools helped with code and documentation. Mistakes are possible, and device compatibility is not guaranteed. Back up your KOReader settings before using bulk sync.
